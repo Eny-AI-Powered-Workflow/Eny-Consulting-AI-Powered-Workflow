@@ -1,4 +1,7 @@
 # /home/obed/Documents/Eny_consulting/backend/app/core/config.py
+import json
+
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -26,7 +29,19 @@ class Settings(BaseSettings):
     APOLLO_API_KEY: str = ""
     PERPLEXITY_API_KEY: str = ""
 
-    ALLOWED_ORIGINS: list[str] = ["http://localhost:3000"]
+    ALLOWED_ORIGINS: list[str] = [
+        "http://localhost:3000",
+        "https://eny-consulting-ai-powered-workflow.vercel.app",
+    ]
+
+    @field_validator("ALLOWED_ORIGINS", mode="before")
+    def parse_allowed_origins(cls, v):
+        if isinstance(v, str):
+            try:
+                return json.loads(v)
+            except ValueError:
+                return [item.strip() for item in v.split(",") if item.strip()]
+        return v
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
