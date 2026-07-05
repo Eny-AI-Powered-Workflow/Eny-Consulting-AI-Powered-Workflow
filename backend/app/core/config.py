@@ -29,16 +29,22 @@ class Settings(BaseSettings):
     APOLLO_API_KEY: str = ""
     PERPLEXITY_API_KEY: str = ""
 
-    ALLOWED_ORIGINS: list[str] = [
+    ALLOWED_ORIGINS: object = [
         "http://localhost:3000",
         "https://eny-consulting-ai-powered-workflow.vercel.app",
     ]
 
     @field_validator("ALLOWED_ORIGINS", mode="before")
     def parse_allowed_origins(cls, v):
+        if v == "" or v is None:
+            return [
+                "http://localhost:3000",
+                "https://eny-consulting-ai-powered-workflow.vercel.app",
+            ]
         if isinstance(v, str):
             try:
-                return json.loads(v)
+                parsed = json.loads(v)
+                return parsed
             except ValueError:
                 return [item.strip() for item in v.split(",") if item.strip()]
         return v
