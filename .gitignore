@@ -1,0 +1,14 @@
+# /home/obed/Documents/Eny_consulting/.gitignore
+__pycache__/
+*.pyc
+.env
+.env.local
+node_modules/
+.next/
+.venv/
+backend/scripts/seed_dev_data.py
+backend/scripts/
+supabase/
+CLAUDE.md
+ROADMAP.md
+backend/venv/
