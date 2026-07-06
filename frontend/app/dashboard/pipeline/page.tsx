@@ -3,6 +3,8 @@ import { getAccessToken } from "@/lib/session";
 
 type Stage = { name: string; count: number; value: number };
 
+type PipelineResponse = { stages?: Stage[]; meta?: { mock?: boolean }; detail?: string };
+
 export default async function PipelinePage() {
   const token = await getAccessToken();
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/pipeline`, {
@@ -12,19 +14,28 @@ export default async function PipelinePage() {
 
   if (res.status === 403) {
     return (
-      <div className="max-w-md rounded-lg border border-signal-red/30 bg-signal-red/5 p-5">
-        <p className="font-mono text-xs uppercase tracking-wider text-signal-red">
-          Access denied
-        </p>
-        <p className="mt-1 text-sm text-ink">
-          Your access badge doesn&apos;t include pipeline:read.
+      <div className="max-w-md rounded-3xl border border-signal-red/30 bg-signal-red/5 p-6">
+        <p className="font-mono text-xs uppercase tracking-wider text-signal-red">Access denied</p>
+        <p className="mt-2 text-sm text-ink">Your access badge doesn&apos;t include pipeline:read.</p>
+      </div>
+    );
+  }
+
+  const data: PipelineResponse = await res.json().catch(() => ({} as PipelineResponse));
+  const stages = Array.isArray(data.stages) ? data.stages : [];
+
+  if (!res.ok || stages.length === 0) {
+    return (
+      <div className="max-w-md rounded-3xl border border-signal-red/30 bg-signal-red/5 p-6">
+        <p className="font-mono text-xs uppercase tracking-wider text-signal-red">Unable to load pipeline</p>
+        <p className="mt-2 text-sm text-ink">
+          {data.detail ?? "The pipeline service returned no stage data. Check your backend or your permissions."}
         </p>
       </div>
     );
   }
 
-  const data: { stages: Stage[]; meta?: { mock?: boolean } } = await res.json();
-  const maxCount = Math.max(...data.stages.map((s) => s.count), 1);
+  const maxCount = Math.max(...stages.map((stage) => stage.count), 1);
 
   return (
     <div className="max-w-3xl">
@@ -43,8 +54,8 @@ export default async function PipelinePage() {
       )}
 
       <div className="mt-6 flex flex-col gap-3">
-        {data.stages.map((stage) => (
-          <div key={stage.name} className="rounded-lg border border-slate/15 bg-white p-4">
+        {stages.map((stage) => (
+          <div key={stage.name} className="rounded-lg border border-slate/15 bg-white p-4 shadow-glow">
             <div className="flex items-baseline justify-between">
               <p className="text-sm font-medium text-ink">{stage.name}</p>
               <p className="font-mono text-xs text-slate">
