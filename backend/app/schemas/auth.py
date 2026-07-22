@@ -9,3 +9,7 @@ class UserContext(BaseModel):
     email: str | None = None
     roles: list[str] = []
     permissions: list[str] = []
+
+class UserCheck():
+    usr: uuid.getnode
+    
