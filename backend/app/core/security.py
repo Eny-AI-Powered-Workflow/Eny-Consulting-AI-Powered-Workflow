@@ -12,6 +12,8 @@ def decode_supabase_token(token: str) -> dict:
             settings.SUPABASE_JWT_SECRET,
             algorithms=["HS256"],
             audience="authenticated",
+
+            
         )
     except JWTError as exc:
         raise ValueError("Invalid or expired token") from exc
