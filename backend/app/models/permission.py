@@ -9,6 +9,7 @@ from app.db.base import Base
 from app.models.role import role_permissions
 
 
+
 class Permission(Base):
     __tablename__ = "permissions"
 
